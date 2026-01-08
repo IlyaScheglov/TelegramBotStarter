@@ -1,0 +1,5 @@
+spring:
+  telebot:
+    enabled: true
+    token: no_default_token
+    username: no_default_token_username
