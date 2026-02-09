@@ -1,17 +1,33 @@
 package ru.ilyxxxa.server.telegrambotstarter.components;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.ilyxxxa.server.telegrambotstarter.exception.TelegramBotExecutionMessageException;
+import ru.ilyxxxa.server.telegrambotstarter.interfaces.GetBotCommands;
 import ru.ilyxxxa.server.telegrambotstarter.properties.TelegramBotProperties;
 
 public class TelegramBotExecutor extends TelegramLongPollingBot {
 
     private final TelegramBotProperties botProperties;
     private final BotStrategy botStrategy;
+
+    public TelegramBotExecutor(TelegramBotProperties botProperties, BotStrategy botStrategy, GetBotCommands getBotCommands) {
+        this.botProperties = botProperties;
+        this.botStrategy = botStrategy;
+
+        try {
+            this.execute(new SetMyCommands(getBotCommands.getBotCommands(), new BotCommandScopeDefault(), null));
+        } catch (Exception e) {
+            throw new TelegramBotExecutionMessageException("Ошибка при настройке команд бота", e);
+        }
+    }
 
     public TelegramBotExecutor(TelegramBotProperties botProperties, BotStrategy botStrategy) {
         this.botProperties = botProperties;
@@ -32,6 +48,8 @@ public class TelegramBotExecutor extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             processMessage(update.getMessage());
+        } else if (update.hasCallbackQuery()) {
+            processCallback(update.getCallbackQuery());
         }
     }
 
@@ -45,9 +63,13 @@ public class TelegramBotExecutor extends TelegramLongPollingBot {
 
     private void processMessage(Message message) {
         SendMessage sendMessage = botStrategy.getSendMessageByStrategy(message);
+        executeSendMessage(sendMessage);
+    }
 
+    private void processCallback(CallbackQuery callbackQuery) {
+        EditMessageText editMessageText = botStrategy.getEditMessageByStrategy(callbackQuery);
         try {
-            execute(sendMessage);
+            execute(editMessageText);
         } catch (TelegramApiException e) {
             throw new TelegramBotExecutionMessageException("Ошибка при отправке сообщения", e);
         }

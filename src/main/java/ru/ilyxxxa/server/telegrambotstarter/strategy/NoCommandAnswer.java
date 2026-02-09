@@ -1,5 +1,6 @@
 package ru.ilyxxxa.server.telegrambotstarter.strategy;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 
@@ -11,5 +12,5 @@ public abstract class NoCommandAnswer implements AnswerStrategy {
     }
 
     @Override
-    public abstract String answer(Message message);
+    public abstract SendMessage answer(Message message);
 }
