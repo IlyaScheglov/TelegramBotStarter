@@ -57,7 +57,7 @@ public class BotStrategy {
     }
 
     public EditMessageText getEditMessageByStrategy(CallbackQuery callbackQuery) {
-        CallbackResponseStrategy strategy = callbackResponseStrategyMap.getOrDefault(callbackQuery.getId(), new DefaultCallbackResponseImpl());
+        CallbackResponseStrategy strategy = callbackResponseStrategyMap.getOrDefault(callbackQuery.getData(), new DefaultCallbackResponseImpl());
         return strategy.callbackEditMessage(callbackQuery);
     }
 }

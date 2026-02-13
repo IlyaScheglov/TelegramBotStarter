@@ -23,7 +23,7 @@ public class TelegramBotMainConfig {
 
     @Bean
     @ConditionalOnBean({AnswerStrategy.class, CallbackResponseStrategy.class})
-    public BotStrategy botStrategy(List<AnswerStrategy> answerStrategies,
+    public BotStrategy botStrategyWithCallbackStrategy(List<AnswerStrategy> answerStrategies,
                                    List<CallbackResponseStrategy> callbackResponseStrategies) {
         return new BotStrategy(answerStrategies, callbackResponseStrategies);
     }
