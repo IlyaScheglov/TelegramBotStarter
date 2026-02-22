@@ -9,6 +9,7 @@ import ru.ilyxxxa.server.telegrambotstarter.strategy.CallbackResponseStrategy;
 import ru.ilyxxxa.server.telegrambotstarter.strategy.DefaultCallbackResponseImpl;
 import ru.ilyxxxa.server.telegrambotstarter.strategy.DefaultNoCommandAnswerImpl;
 import ru.ilyxxxa.server.telegrambotstarter.strategy.NoCommandAnswer;
+import ru.ilyxxxa.server.telegrambotstarter.strategy.NotPreparedCallbackResponse;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +22,7 @@ public class BotStrategy {
 
     private final NoCommandAnswer noCommandAnswer;
     private final Map<String, AnswerStrategy> strategiesMap;
+    private final NotPreparedCallbackResponse notPreparedCallbackResponse;
     private final Map<String, CallbackResponseStrategy> callbackResponseStrategyMap;
 
     public BotStrategy(List<AnswerStrategy> strategies,
@@ -35,7 +37,14 @@ public class BotStrategy {
                 .findFirst()
                 .orElseGet(DefaultNoCommandAnswerImpl::new);
         this.callbackResponseStrategyMap = callbackStrategies.stream()
+                .filter(strategy -> Objects.nonNull(strategy.id()))
                 .collect(Collectors.toMap(CallbackResponseStrategy::id, Function.identity()));
+        this.notPreparedCallbackResponse = callbackStrategies.stream()
+                .filter(strategy -> Objects.isNull(strategy.id()))
+                .filter(strategy -> strategy instanceof NotPreparedCallbackResponse)
+                .map(strategy -> (NotPreparedCallbackResponse) strategy)
+                .findFirst()
+                .orElseGet(DefaultCallbackResponseImpl::new);
     }
 
     public BotStrategy(List<AnswerStrategy> strategies) {
@@ -49,6 +58,7 @@ public class BotStrategy {
                 .findFirst()
                 .orElseGet(DefaultNoCommandAnswerImpl::new);
         this.callbackResponseStrategyMap = Collections.emptyMap();
+        this.notPreparedCallbackResponse = new DefaultCallbackResponseImpl();
     }
 
     public SendMessage getSendMessageByStrategy(Message message) {
@@ -57,7 +67,7 @@ public class BotStrategy {
     }
 
     public EditMessageText getEditMessageByStrategy(CallbackQuery callbackQuery) {
-        CallbackResponseStrategy strategy = callbackResponseStrategyMap.getOrDefault(callbackQuery.getData(), new DefaultCallbackResponseImpl());
+        CallbackResponseStrategy strategy = callbackResponseStrategyMap.getOrDefault(callbackQuery.getData(), notPreparedCallbackResponse);
         return strategy.callbackEditMessage(callbackQuery);
     }
 }

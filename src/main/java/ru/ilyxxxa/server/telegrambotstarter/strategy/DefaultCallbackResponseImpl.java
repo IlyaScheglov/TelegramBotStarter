@@ -4,12 +4,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-public class DefaultCallbackResponseImpl implements CallbackResponseStrategy {
-
-    @Override
-    public String id() {
-        return null;
-    }
+public class DefaultCallbackResponseImpl extends NotPreparedCallbackResponse {
 
     @Override
     public EditMessageText callbackEditMessage(CallbackQuery callbackQuery) {
