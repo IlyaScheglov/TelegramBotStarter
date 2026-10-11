@@ -3,6 +3,7 @@ package ru.ilyxxxa.server.telegrambotstarter.components;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -68,8 +69,21 @@ public class TelegramBotExecutor extends TelegramLongPollingBot {
 
     private void processCallback(CallbackQuery callbackQuery) {
         EditMessageText editMessageText = botStrategy.getEditMessageByStrategy(callbackQuery);
+
+        // for animation
+        DeleteMessage deleteMessage = DeleteMessage.builder()
+                .chatId(editMessageText.getChatId())
+                .messageId(editMessageText.getMessageId())
+                .build();
+        SendMessage sendMessage = SendMessage.builder()
+                .chatId(editMessageText.getChatId())
+                .text(editMessageText.getText())
+                .replyMarkup(editMessageText.getReplyMarkup())
+                .build();
+
         try {
-            execute(editMessageText);
+            execute(deleteMessage);
+            executeSendMessage(sendMessage);
         } catch (TelegramApiException e) {
             throw new TelegramBotExecutionMessageException("Ошибка при отправке сообщения", e);
         }
