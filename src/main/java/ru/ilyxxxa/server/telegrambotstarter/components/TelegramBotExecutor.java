@@ -1,5 +1,6 @@
 package ru.ilyxxxa.server.telegrambotstarter.components;
 
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,7 +20,16 @@ public class TelegramBotExecutor extends TelegramLongPollingBot {
     private final TelegramBotProperties botProperties;
     private final BotStrategy botStrategy;
 
+    private static DefaultBotOptions createHostOptions(String host) {
+        DefaultBotOptions options = new DefaultBotOptions();
+        if (host != null) {
+            options.setBaseUrl(host);
+        }
+        return options;
+    }
+
     public TelegramBotExecutor(TelegramBotProperties botProperties, BotStrategy botStrategy, GetBotCommands getBotCommands) {
+        super(createHostOptions(botProperties.getHost()), botProperties.getToken());
         this.botProperties = botProperties;
         this.botStrategy = botStrategy;
 
@@ -31,6 +41,7 @@ public class TelegramBotExecutor extends TelegramLongPollingBot {
     }
 
     public TelegramBotExecutor(TelegramBotProperties botProperties, BotStrategy botStrategy) {
+        super(createHostOptions(botProperties.getHost()), botProperties.getToken());
         this.botProperties = botProperties;
         this.botStrategy = botStrategy;
     }

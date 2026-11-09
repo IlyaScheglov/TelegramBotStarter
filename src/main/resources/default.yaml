@@ -3,3 +3,4 @@ spring:
     enabled: true
     token: no_default_token
     username: no_default_token_username
+    host: https://api.telegram.org

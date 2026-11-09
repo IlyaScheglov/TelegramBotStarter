@@ -9,6 +9,8 @@ public class TelegramBotProperties {
 
     private String username;
 
+    private String host;
+
     public String getToken() {
         return token;
     }
@@ -23,5 +25,13 @@ public class TelegramBotProperties {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 }
